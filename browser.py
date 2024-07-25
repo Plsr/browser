@@ -59,7 +59,8 @@ class URL:
     s.close()
     return content
 
-  def show(self, body):
+  def lex(self, body):
+    text = ""
     in_tag = False
     for c in body:
       if c == "<":
@@ -67,11 +68,13 @@ class URL:
       if c == ">":
         in_tag = False
       elif not in_tag:
-        print(c, end="")
+        text += c
+
+    return text
 
   def load(self):
-      body = self.request()
-      self.show(body)
+    body = self.request()
+    return self.lex(body)
 
 if __name__ == "__main__":
     import sys
