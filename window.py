@@ -1,11 +1,10 @@
 import tkinter
 import browser
 
-WIDTH, HEIGHT = 800, 600
 HSTEP, VSTEP = 13, 18
 SCROLL_STEP = 100
 
-def layout(text):
+def layout(text, width):
   display_list = []
   cursor_x, cursor_y = HSTEP, VSTEP
 
@@ -18,7 +17,7 @@ def layout(text):
     display_list.append((cursor_x, cursor_y, c))
     cursor_x += HSTEP
 
-    if cursor_x >= WIDTH:
+    if cursor_x >= width:
       cursor_y += VSTEP
       cursor_x = HSTEP
 
@@ -26,27 +25,37 @@ def layout(text):
 
 class Browser:
   def __init__(self):
+    self.width = 800
+    self.height= 600
     self.window = tkinter.Tk()
     self.canvas = tkinter.Canvas(
       self.window,
-      width=WIDTH,
-      height=HEIGHT
+      width=self.width,
+      height=self.height
     )
-    self.canvas.pack()
+    self.canvas.pack(fill="both", expand=True)
     self.scroll = 0
 
     self.window.bind("<Down>", self.scrolldown)
     self.window.bind("<Up>", self.scrollup)
     self.window.bind("<MouseWheel>", self.mousewheel)
+    self.window.bind("<Configure>", self.resize)
   
-  def scrolldown(self, e):
-    if self.scroll >= HEIGHT: return
+  def resize(self, e):
+    self.width = e.width
+    self.height = e.height
 
+    self.display_list = layout(self.text, self.width)
+    self.draw()
+
+
+  def scrolldown(self, e):
+    if self.scroll - SCROLL_STEP + self.height >= self.display_list[-1][1]: return
     self.scroll += SCROLL_STEP
     self.draw()
 
   def scrollup(self, e):
-    if self.scroll == 0: return
+    if self.scroll <= 0: return
 
     self.scroll -= SCROLL_STEP
     self.draw()
@@ -58,22 +67,26 @@ class Browser:
     if delta % 120 == 0:
       delta = delta / 120
 
-    if delta < 0 and self.scroll + delta * SCROLL_STEP <= 0: return
-    if delta > 0 and self.scroll + delta * SCROLL_STEP >= HEIGHT: return
+    if delta < 0 and self.scroll + delta * SCROLL_STEP + self.height >= self.display_list[-1][1]: 
+      self.scroll = self.display_list[-1][1] - self.height
+      self.draw()
+      return
+    if delta > 0 and self.scroll + delta * SCROLL_STEP <= 0: return
 
-    self.scroll += delta * SCROLL_STEP
+    self.scroll += delta * SCROLL_STEP * -1
     self.draw()
   
   def draw(self):
      self.canvas.delete("all")
      for x, y, c in self.display_list:
-        if y > self.scroll + HEIGHT: continue
+        if y > self.scroll + self.height: continue
         if y + VSTEP < self.scroll: continue
         self.canvas.create_text(x, y - self.scroll, text=c)
   
   def load(self, text):
-     self.display_list = layout(text)
-     self.draw()
+    self.text = text
+    self.display_list = layout(text, self.width)
+    self.draw()
 
 if __name__ == "__main__":
     import sys
