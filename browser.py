@@ -3,6 +3,14 @@ import ssl
 
 class URL:
   def __init__(self, url):
+    
+    if url.split(":")[0] == "data":
+      print("data scheme")
+      self.scheme, url = url.split(":", 1)
+      self.data_type, url = url.split(",", 1)
+      self.data = url
+      return
+
     self.scheme, url = url.split("://", 1)
     assert self.scheme in ["http", "https", "file"]
 
@@ -24,9 +32,10 @@ class URL:
 
   def request(self):
     if self.scheme == "file":
-      print("is file scheme")
       f = open(self.path, 'r')
       return f.read()
+    elif self.scheme == "data":
+      return self.data
 
     s = socket.socket(
       family=socket.AF_INET,
