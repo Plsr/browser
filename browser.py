@@ -37,8 +37,8 @@ class URL:
 
     request = "GET {} HTTP/1.0\r\n".format(self.path)
     request += "Host: {}\r\n".format(self.host)
-    request += "Connection: close"
-    request += "User Agent: Plsr/1.0 Urethane Alpha 0.1"
+    request += "Connection: close\r\n"
+    request += "User Agent: Plsr/1.0 Urethane Alpha 0.1\r\n"
     request += "\r\n"
 
     s.send(request.encode("utf8"))
