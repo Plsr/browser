@@ -4,7 +4,7 @@ import ssl
 class URL:
   def __init__(self, url):
     self.scheme, url = url.split("://", 1)
-    assert self.scheme in ["http", "https"]
+    assert self.scheme in ["http", "https", "file"]
 
     if self.scheme == "http":
       self.port = 80
@@ -23,6 +23,11 @@ class URL:
     self.path = "/" + url
 
   def request(self):
+    if self.scheme == "file":
+      print("is file scheme")
+      f = open(self.path, 'r')
+      return f.read()
+
     s = socket.socket(
       family=socket.AF_INET,
       type=socket.SOCK_STREAM,
