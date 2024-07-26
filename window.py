@@ -77,11 +77,21 @@ class Browser:
     self.draw()
   
   def draw(self):
-     self.canvas.delete("all")
-     for x, y, c in self.display_list:
-        if y > self.scroll + self.height: continue
-        if y + VSTEP < self.scroll: continue
-        self.canvas.create_text(x, y - self.scroll, text=c)
+    self.canvas.delete("all")
+    for x, y, c in self.display_list:
+      if y > self.scroll + self.height: continue
+      if y + VSTEP < self.scroll: continue
+      self.canvas.create_text(x, y - self.scroll, text=c)
+      
+    # Scrollbar
+    y_max = self.display_list[-1][1]
+    y_curr = self.scroll + self.height
+    pct_scrl = y_curr / y_max
+    if pct_scrl > 1: pct_scrl = 1
+    if pct_scrl < 0: pct_scrl = 0
+    y0 = (self.height - 30) * pct_scrl 
+    self.canvas.create_rectangle(self.width - 10, y0, self.width, y0 + 30 , fill="#eee")
+    
   
   def load(self, text):
     self.text = text
