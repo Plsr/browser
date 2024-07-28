@@ -78,13 +78,34 @@ class URL:
   def lex(self, body):
     text = ""
     in_tag = False
-    for c in body:
+    index = 0 
+    while index < len(body):
+      c = body[index]
       if c == "<":
         in_tag = True
       if c == ">":
         in_tag = False
+      if c == "&":
+        entity = ""
+        original_index = index
+
+        # TODO:: This won't scale
+        while index < len(body) and body[index] != ";":
+          index += 1
+          if body[index] == ';':
+            if entity == "lt":
+              text += "<"
+            elif entity == "gt":
+              text += ">"
+            else:
+              index = original_index
+            break
+            
+          entity += body[index]
       elif not in_tag:
         text += c
+      
+      index += 1
 
     return text
 
